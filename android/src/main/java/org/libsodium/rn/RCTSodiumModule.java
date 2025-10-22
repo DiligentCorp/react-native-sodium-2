@@ -17,8 +17,8 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.WritableNativeMap;
 import com.facebook.react.common.MapBuilder;
-import com.facebook.react.common.StandardCharsets;
 
+import java.nio.charset.StandardCharsets;
 import org.libsodium.jni.Sodium;
 
 public class RCTSodiumModule extends ReactContextBaseJavaModule {
