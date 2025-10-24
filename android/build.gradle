@@ -7,11 +7,15 @@ buildscript {
   }
 
   dependencies {
-    classpath 'com.android.tools.build:gradle:3.4.2'
+    classpath 'com.android.tools.build:gradle:8.5.1'
   }
 }
 
 apply plugin: 'com.android.library'
+
+def safeExtGet(prop, fallback) {
+    rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
+}
 
 def getExtOrDefault(name) {
   return rootProject.ext.has(name) ? rootProject.ext.get(name) : project.properties['Libsodium_' + name]
@@ -22,20 +26,22 @@ def getExtOrIntegerDefault(name) {
 }
 
 android {
-    compileSdkVersion getExtOrIntegerDefault('compileSdkVersion')
-    buildToolsVersion getExtOrDefault('buildToolsVersion')
+    compileSdkVersion safeExtGet('compileSdkVersion', 34)
+    buildToolsVersion safeExtGet('buildToolsVersion', '34.0.0')
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
     defaultConfig {
         minSdkVersion 23
-        targetSdkVersion getExtOrIntegerDefault('targetSdkVersion')
+        targetSdkVersion safeExtGet('targetSdkVersion', 34)
         versionCode 1
         versionName "1.0"
         externalNativeBuild {
             cmake {
                 arguments "-DANDROID_TOOLCHAIN=clang"
+                // Add 16KB page size support
+                cppFlags "-Wl,-z,max-page-size=16384"
             }
         }
         ndk {
@@ -48,7 +54,15 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-    ndkVersion '21.4.7075529'
+    
+    packagingOptions {
+        jniLibs {
+            // Use uncompressed libraries for better 16KB alignment with AGP 8.5.1+
+            useLegacyPackaging false
+        }
+    }
+    
+    ndkVersion safeExtGet('ndkVersion', '29.0.14206865')
     externalNativeBuild {
         cmake {
             path "CMakeLists.txt"

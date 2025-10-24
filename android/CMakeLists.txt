@@ -1,5 +1,17 @@
 cmake_minimum_required(VERSION 3.4.1)
 
+# Add 16KB page size support for NDK r27 and below
+if(ANDROID_NDK_REVISION VERSION_LESS "28")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wl,-z,max-page-size=16384")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,-z,max-page-size=16384")
+    
+    # For NDK r22 and below, also add common-page-size
+    if(ANDROID_NDK_REVISION VERSION_LESS "23")
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wl,-z,common-page-size=16384")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,-z,common-page-size=16384")
+    endif()
+endif()
+
 set(ARCH_DIR ${ANDROID_ARCH_NAME})
 
 if( ANDROID_ABI STREQUAL "armeabi-v7a")
