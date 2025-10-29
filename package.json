@@ -12,9 +12,7 @@
     "pods": "cd example && pod-install --quiet",
     "bootstrap": "yarn example && yarn && yarn pods",
     "postinstall": "tar -xzf precompiled.tgz",
-    "rebuild": "./build.sh",
-    "build:16kb": "./build.sh",
-    "validate:16kb": "./validate-16kb.sh"
+    "rebuild": "./build.sh"
   },
   "devDependencies": {
     "@react-native-community/eslint-config": "^1.1.0",

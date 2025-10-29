@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# Build script for react-native-sodium with 16KB page size support
-# This ensures compatibility with Android's 16KB page size requirement
-
 sigfile=`ls -1 libsodium-*-stable.tar.gz.minisig`
 srcfile=`basename $sigfile .minisig`
 srcdir='libsodium-stable'
@@ -58,7 +55,8 @@ fi
 # --------------------------
 [ -f $srcfile ] && rm -f $srcfile
 curl https://download.libsodium.org/libsodium/releases/$srcfile > $srcfile
-minisign -P "RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3" -Vm $srcfile || exit 1
+
+minisign -V -P RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3 -m $srcfile || exit 1
 
 # --------------------------
 # Extract sources
@@ -99,7 +97,7 @@ do
   fi
 
   # --------------------------
-  # Android build with 16KB page size support
+  # Android build
   # --------------------------
   case $targetPlatform in
     "arm-old")
@@ -149,62 +147,11 @@ if [ "$platform" == 'Darwin' ] && [ -e $srcdir/libsodium-apple ]; then
 fi
 
 # --------------------------
-# Validate 16KB alignment
-# --------------------------
-echo "Validating 16KB alignment of compiled libraries..."
-VALIDATION_FAILED=false
-
-for so_file in $(find libsodium -name "*.so" 2>/dev/null); do
-    if [ -f "$so_file" ]; then
-        echo "Checking $(basename $so_file)..."
-        
-        # Use objdump to check alignment if available
-        OBJDUMP="$NDK_PATH/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-objdump"
-        if [ -f "$OBJDUMP" ]; then
-            LOAD_SEGMENTS=$("$OBJDUMP" -p "$so_file" | grep "LOAD.*align" || true)
-            
-            if [ -n "$LOAD_SEGMENTS" ]; then
-                while IFS= read -r line; do
-                    ALIGN=$(echo "$line" | grep -o 'align 2\*\*[0-9]*' | grep -o '[0-9]*$')
-                    if [ -n "$ALIGN" ] && [ "$ALIGN" -lt 14 ]; then
-                        echo "  ❌ WARNING: $(basename $so_file) has alignment 2**$ALIGN (less than 2**14 for 16KB)"
-                        VALIDATION_FAILED=true
-                    else
-                        echo "  ✅ $(basename $so_file) has proper 16KB alignment (2**$ALIGN)"
-                    fi
-                done <<< "$LOAD_SEGMENTS"
-            fi
-        else
-            echo "  ⚠️  Cannot validate alignment (llvm-objdump not found)"
-        fi
-    fi
-done
-
-if [ "$VALIDATION_FAILED" = true ]; then
-    echo ""
-    echo "❌ WARNING: Some libraries may not have proper 16KB alignment!"
-    echo "This could cause issues on Android devices with 16KB page sizes."
-    echo "Consider upgrading to NDK r28+ or check your build configuration."
-else
-    echo ""
-    echo "✅ All libraries appear to have proper 16KB alignment."
-fi
-
-# --------------------------
 # Update precompiled.tgz
 # --------------------------
-echo "Creating precompiled.tgz with 16KB-aligned libraries..."
+echo "Creating precompiled.tgz"
 tar -cvzf precompiled.tgz libsodium
 
-echo ""
-echo "🎉 Build completed successfully!"
-echo "✅ Libraries compiled with 16KB page size support"
-echo "📦 Precompiled libraries saved to precompiled.tgz"
-echo ""
-echo "Next steps:"
-echo "1. Test your app on a 16KB emulator"
-echo "2. Run validation: ./validate_16kb.sh path/to/your.apk"
-echo "3. Ensure your React Native app uses the updated Android build configuration"
 
 # --------------------------
 # Cleanup
@@ -213,4 +160,4 @@ echo "Cleaning up temporary files..."
 [ -e $srcdir ] && rm -Rf $srcdir
 [ -e $srcfile ] && rm $srcfile
 
-echo "✅ Cleanup completed."
+echo "Cleanup completed."
