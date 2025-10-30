@@ -13,11 +13,20 @@ Pod::Spec.new do |s|
   s.platform     = :ios, "9.0"
 
   s.source       = { :git => "https://github.com/lyubo/react-native-sodium.git", :tag => "v#{s.version}" }
-  s.source_files = ["ios/**/*.{h,m}","libsodium/libsodium-ios/**/*.{h,m}"]
-  s.header_mappings_dir = 'libsodium/libsodium-ios/include'
-
-  s.vendored_frameworks = "libsodium/libsodium-apple/Clibsodium.xcframework"
-  s.xcconfig = { 'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/Headers/Public/#{s.name}/**'}
+  s.source_files = ["ios/**/*.{h,m}"]
+  
+  # Use the simplified header location
+  s.public_header_files = "include/**/*.h"
+  
+  # Directly specify the vendored libraries for simulator builds
+  s.vendored_libraries = 'libsodium/libsodium-apple/tmp/ios-simulator-arm64/lib/libsodium.a'
+  
+  # Configure framework linking
+  s.frameworks = 'Security'
+  
+  s.xcconfig = {
+    'HEADER_SEARCH_PATHS' => '$(PODS_TARGET_SRCROOT)/include'
+  }
 
   s.dependency 'React-Core'
 end
