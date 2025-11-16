@@ -18,16 +18,16 @@ Pod::Spec.new do |s|
   s.osx.deployment_target = '10.15'
   
   # Platform-specific configurations
-  s.ios.vendored_libraries = 'libsodium/libsodium-apple/tmp/ios64/lib/libsodium.a'
+  # Note: We use -force_load in OTHER_LDFLAGS instead of vendored_libraries
+  # because we need different libraries for different SDKs (simulator vs device)
   s.ios.xcconfig = {
     'HEADER_SEARCH_PATHS' => '$(PODS_TARGET_SRCROOT)/libsodium/libsodium-apple/tmp/ios64/include',
-    'LIBRARY_SEARCH_PATHS' => '$(PODS_TARGET_SRCROOT)/libsodium/libsodium-apple/tmp/ios64/lib',
+    'LIBRARY_SEARCH_PATHS' => '$(PODS_TARGET_SRCROOT)/libsodium/libsodium-apple/tmp/ios64/lib $(PODS_TARGET_SRCROOT)/libsodium/libsodium-apple/tmp/ios-simulator-arm64/lib',
     'GCC_PREPROCESSOR_DEFINITIONS' => 'SODIUM_STATIC=1',
     'OTHER_LDFLAGS[sdk=iphoneos*]' => '$(inherited) -force_load "$(PODS_TARGET_SRCROOT)/libsodium/libsodium-apple/tmp/ios64/lib/libsodium.a"',
     'OTHER_LDFLAGS[sdk=iphonesimulator*]' => '$(inherited) -force_load "$(PODS_TARGET_SRCROOT)/libsodium/libsodium-apple/tmp/ios-simulator-arm64/lib/libsodium.a"'
   }
   
-  s.osx.vendored_libraries = 'libsodium/libsodium-apple/tmp/macos-arm64/lib/libsodium.a'
   s.osx.xcconfig = {
     'HEADER_SEARCH_PATHS' => '$(PODS_TARGET_SRCROOT)/libsodium/libsodium-apple/tmp/macos-arm64/include',
     'LIBRARY_SEARCH_PATHS' => '$(PODS_TARGET_SRCROOT)/libsodium/libsodium-apple/tmp/macos-arm64/lib',
