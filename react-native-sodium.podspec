@@ -60,7 +60,8 @@ Pod::Spec.new do |s|
   }
   s.xcconfig = {
     'HEADER_SEARCH_PATHS' => '$(PODS_TARGET_SRCROOT)/platform-headers',
-    'GCC_PREPROCESSOR_DEFINITIONS' => 'SODIUM_STATIC=1'
+    'GCC_PREPROCESSOR_DEFINITIONS' => 'SODIUM_STATIC=1',
+    'OTHER_LDFLAGS' => '$(inherited) -force_load "$(PODS_TARGET_SRCROOT)/libsodium.a"'
   }
   s.dependency 'React-Core'
 end
