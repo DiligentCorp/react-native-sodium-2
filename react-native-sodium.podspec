@@ -14,7 +14,6 @@ Pod::Spec.new do |s|
 
   s.source       = { :git => "https://github.com/lyubo/react-native-sodium.git", :tag => "v#{s.version}" }
   s.source_files = ["ios/**/*.{h,m}"]
-  s.public_header_files = "include/**/*.h"
   s.ios.deployment_target = '12.0'
   s.osx.deployment_target = '10.15'
   
@@ -60,7 +59,7 @@ Pod::Spec.new do |s|
     'VALID_ARCHS[sdk=macosx*]' => 'arm64 x86_64'
   }
   s.xcconfig = {
-    'HEADER_SEARCH_PATHS' => '$(PODS_TARGET_SRCROOT)/include $(PODS_TARGET_SRCROOT)/platform-headers',
+    'HEADER_SEARCH_PATHS' => '$(PODS_TARGET_SRCROOT)/platform-headers',
     'GCC_PREPROCESSOR_DEFINITIONS' => 'SODIUM_STATIC=1'
   }
   s.dependency 'React-Core'

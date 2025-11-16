@@ -44,9 +44,9 @@
 		382804091D980AC000DD9014 /* libRCTSodium.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRCTSodium.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		3828040C1D980AC000DD9014 /* RCTSodium.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RCTSodium.h; sourceTree = "<group>"; };
 		3828040E1D980AC000DD9014 /* RCTSodium.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RCTSodium.m; sourceTree = "<group>"; };
-		387375C81D9ED0C300AE562A /* libsodium.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libsodium.a; path = "../libsodium/libsodium-ios/lib/libsodium.a"; sourceTree = "<group>"; };
-		387375CA1D9ED0D600AE562A /* sodium.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = sodium.h; path = "../libsodium/libsodium-ios/include/sodium.h"; sourceTree = "<group>"; };
-		387375CC1D9ED0E200AE562A /* sodium */ = {isa = PBXFileReference; lastKnownFileType = folder; name = sodium; path = "../libsodium/libsodium-ios/include/sodium"; sourceTree = "<group>"; };
+	387375C81D9ED0C300AE562A /* libsodium.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libsodium.a; path = "../libsodium/libsodium-apple/tmp/ios64/lib/libsodium.a"; sourceTree = "<group>"; };
+	387375CA1D9ED0D600AE562A /* sodium.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = sodium.h; path = "../libsodium/libsodium-apple/tmp/ios64/include/sodium.h"; sourceTree = "<group>"; };
+	387375CC1D9ED0E200AE562A /* sodium */ = {isa = PBXFileReference; lastKnownFileType = folder; name = sodium; path = "../libsodium/libsodium-apple/tmp/ios64/include/sodium"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -256,10 +256,11 @@
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/../../react-native/React/**",
+					"$(SRCROOT)/../libsodium/libsodium-apple/tmp/ios64/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(PROJECT_DIR)",
-					"../libsodium/libsodium-ios/lib",
+					"$(SRCROOT)/../libsodium/libsodium-apple/tmp/ios64/lib",
 				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -275,10 +276,11 @@
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/../../react-native/React/**",
+					"$(SRCROOT)/../libsodium/libsodium-apple/tmp/ios64/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(PROJECT_DIR)",
-					"../libsodium/libsodium-ios/lib",
+					"$(SRCROOT)/../libsodium/libsodium-apple/tmp/ios64/lib",
 				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
