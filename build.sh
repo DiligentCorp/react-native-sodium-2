@@ -31,7 +31,6 @@ echo "Using NDK at: $NDK_PATH"
 NDK_VERSION_FILE="$NDK_PATH/source.properties"
 if [ -f "$NDK_VERSION_FILE" ]; then
     NDK_VERSION=$(grep "Pkg.Revision" "$NDK_VERSION_FILE" | cut -d'=' -f2 | tr -d ' ')
-    echo "NDK Version: $NDK_VERSION"
     
     # Extract major version (e.g., "28.0.12674087" -> "28")
     NDK_MAJOR=$(echo "$NDK_VERSION" | cut -d'.' -f1)
@@ -42,7 +41,6 @@ if [ -f "$NDK_VERSION_FILE" ]; then
         echo "Continuing with manual 16KB flags..."
         USE_MANUAL_16KB_FLAGS=true
     else
-        echo "NDK version $NDK_VERSION supports 16KB page sizes."
         USE_MANUAL_16KB_FLAGS=false
     fi
 else
@@ -55,6 +53,7 @@ fi
 # --------------------------
 [ -f $srcfile ] && rm -f $srcfile
 curl https://download.libsodium.org/libsodium/releases/$srcfile > $srcfile
+curl https://download.libsodium.org/libsodium/releases/$sigfile > $sigfile
 
 minisign -V -P RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3 -m $srcfile || exit 1
 
@@ -93,7 +92,7 @@ do
   # --------------------------
   platform=`uname`
   if [ "$platform" == 'Darwin' ] && [ "$targetPlatform" == 'ios' ]; then
-    IOS_VERSION_MIN=10.0.0 dist-build/apple-xcframework.sh
+    IOS_VERSION_MIN=12.0.0 dist-build/apple-xcframework.sh
   fi
 
   # --------------------------
@@ -123,8 +122,6 @@ do
 
 done
 cd ..
-
-
 # --------------------------
 # Move compiled libraries
 # --------------------------
@@ -142,7 +139,6 @@ done
 
 if [ "$platform" == 'Darwin' ] && [ -e $srcdir/libsodium-apple ]; then
   echo "Moving libsodium-apple..."
-  echo $PWD
   mv $srcdir/libsodium-apple libsodium/
 fi
 
