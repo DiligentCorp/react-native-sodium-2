@@ -301,7 +301,6 @@ extern "C"
   {
     unsigned char *in = (unsigned char *)(*jenv)->GetByteArrayElements(jenv, j_in, 0);
     unsigned char *key = j_key != NULL ? (unsigned char *)(*jenv)->GetByteArrayElements(jenv, j_key, 0) : NULL;
-    ;
     unsigned char *out = (unsigned char *)(*jenv)->GetByteArrayElements(jenv, j_out, 0);
 
     int result = crypto_generichash(out, (unsigned long long)j_olong, in, (unsigned long long)j_ilen, key, (unsigned long long)j_klen);
@@ -352,7 +351,7 @@ extern "C"
     unsigned char *state = (unsigned char *)(*jenv)->GetByteArrayElements(jenv, j_state, 0);
     unsigned char *key = (unsigned char *)(*jenv)->GetByteArrayElements(jenv, j_key, 0);
 
-    int result = crypto_generichash_init(state, key, (unsigned long long)j_klen, (unsigned long long)j_olen);
+    int result = crypto_generichash_init((crypto_generichash_state *)state, key, (unsigned long long)j_klen, (unsigned long long)j_olen);
 
     (*jenv)->ReleaseByteArrayElements(jenv, j_state, (jbyte *)state, 0);
     (*jenv)->ReleaseByteArrayElements(jenv, j_key, (jbyte *)key, 0);
@@ -364,7 +363,7 @@ extern "C"
     unsigned char *state = (unsigned char *)(*jenv)->GetByteArrayElements(jenv, j_state, 0);
     unsigned char *in = (unsigned char *)(*jenv)->GetByteArrayElements(jenv, j_in, 0);
 
-    int result = crypto_generichash_update(state, in, (unsigned long long)j_ilen);
+    int result = crypto_generichash_update((crypto_generichash_state *)state, in, (unsigned long long)j_ilen);
 
     (*jenv)->ReleaseByteArrayElements(jenv, j_state, (jbyte *)state, 0);
     (*jenv)->ReleaseByteArrayElements(jenv, j_in, (jbyte *)in, 0);
@@ -376,7 +375,7 @@ extern "C"
     unsigned char *state = (unsigned char *)(*jenv)->GetByteArrayElements(jenv, j_state, 0);
     unsigned char *out = (unsigned char *)(*jenv)->GetByteArrayElements(jenv, j_out, 0);
 
-    int result = crypto_generichash_final(state, out, (unsigned long long)j_olen);
+    int result = crypto_generichash_final((crypto_generichash_state *)state, out, (unsigned long long)j_olen);
 
     (*jenv)->ReleaseByteArrayElements(jenv, j_state, (jbyte *)state, 0);
     (*jenv)->ReleaseByteArrayElements(jenv, j_out, (jbyte *)out, 0);
@@ -647,7 +646,7 @@ extern "C"
     return (jint)result;
   }
 
-  JNIEXPORT jchar JNICALL
+  JNIEXPORT void JNICALL
   Java_org_libsodium_jni_SodiumJNI_crypto_1aead_1xchacha20poly1305_1ietf_1keygen(JNIEnv *jenv,
                                                                                  jclass clazz,
                                                                                  jbyteArray j_k)
@@ -655,7 +654,6 @@ extern "C"
     unsigned char *k = (unsigned char *)(*jenv)->GetByteArrayElements(jenv, j_k, 0);
     crypto_aead_xchacha20poly1305_ietf_keygen(k);
     (*jenv)->ReleaseByteArrayElements(jenv, j_k, (jbyte *)k, 0);
-    return k;
   }
 
   JNIEXPORT jint JNICALL
@@ -722,28 +720,31 @@ extern "C"
     jint *len = (*jenv)->GetIntArrayElements(jenv, j_bin_len, 0);
     unsigned char *b64 = as_unsigned_char_array(jenv, j_b64);
     unsigned char *ignore = as_unsigned_char_array(jenv, j_ignore);
-    void *memory = malloc(sizeof(int));
-    int *ptr = (int *)memory;
+    size_t bin_len_result;
 
-    int result = sodium_base642bin(bin, j_bin_maxlen, b64, j_b64_len, ignore,
-                                   ptr, j_b64_end, j_variant);
+    int result = sodium_base642bin(bin, j_bin_maxlen, (const char *)b64, j_b64_len, (const char *)ignore,
+                                   &bin_len_result, j_b64_end, j_variant);
     (*jenv)->ReleaseByteArrayElements(jenv, j_bin, (jbyte *)bin, 0);
-    len[0] = *ptr;
+    len[0] = (jint)bin_len_result;
     (*jenv)->ReleaseIntArrayElements(jenv, j_bin_len, len, 0);
-    free(memory);
+    
+    // Free allocated memory
+    if (b64) free(b64);
+    if (ignore) free(ignore);
+    
     return (jint)result;
   }
 
-  JNIEXPORT jchar JNICALL
+  JNIEXPORT void JNICALL
   Java_org_libsodium_jni_SodiumJNI_sodium_1bin2hex(JNIEnv *jenv, jclass clazz, jbyteArray j_hex,
                                                    jint j_hex_maxlen, jbyteArray j_bin, jint j_bin_len)
   {
     unsigned char *hex = (unsigned char *)(*jenv)->GetByteArrayElements(jenv, j_hex, 0);
     unsigned char *bin = as_unsigned_char_array(jenv, j_bin);
 
-    int result = sodium_bin2hex(hex, j_hex_maxlen, bin, j_bin_len);
+    sodium_bin2hex((char *)hex, j_hex_maxlen, bin, j_bin_len);
     (*jenv)->ReleaseByteArrayElements(jenv, j_hex, (jbyte *)hex, 0);
-    return (jint)result;
+    free(bin);
   }
 
   JNIEXPORT jint JNICALL
@@ -756,18 +757,21 @@ extern "C"
     jint *len = (*jenv)->GetIntArrayElements(jenv, j_bin_len, 0);
     unsigned char *hex = as_unsigned_char_array(jenv, j_hex);
     unsigned char *ignore = as_unsigned_char_array(jenv, j_ignore);
-    void *memory = malloc(sizeof(int));
-    int *ptr = (int *)memory;
+    size_t bin_len_result;
 
-    int result = sodium_hex2bin(bin, j_bin_maxlen, hex, j_hex_len, ignore, ptr, j_hex_end);
+    int result = sodium_hex2bin(bin, j_bin_maxlen, (const char *)hex, j_hex_len, (const char *)ignore, &bin_len_result, j_hex_end);
     (*jenv)->ReleaseByteArrayElements(jenv, j_bin, (jbyte *)bin, 0);
-    len[0] = *ptr;
+    len[0] = (jint)bin_len_result;
     (*jenv)->ReleaseIntArrayElements(jenv, j_bin_len, len, 0);
-    free(memory);
+    
+    // Free allocated memory
+    if (hex) free(hex);
+    if (ignore) free(ignore);
+    
     return (jint)result;
   }
 
-  JNIEXPORT jchar JNICALL
+  JNIEXPORT void JNICALL
   Java_org_libsodium_jni_SodiumJNI_sodium_1bin2base64(JNIEnv *jenv, jclass clazz, jbyteArray j_b64,
                                                       jint j_b64_maxlen, jbyteArray j_bin, jint j_bin_len,
                                                       jint j_variant)
@@ -775,9 +779,9 @@ extern "C"
     unsigned char *b64 = (unsigned char *)(*jenv)->GetByteArrayElements(jenv, j_b64, 0);
     unsigned char *bin = as_unsigned_char_array(jenv, j_bin);
 
-    int result = sodium_bin2base64(b64, j_b64_maxlen, bin, j_bin_len, j_variant);
+    sodium_bin2base64((char *)b64, j_b64_maxlen, bin, j_bin_len, j_variant);
     (*jenv)->ReleaseByteArrayElements(jenv, j_b64, (jbyte *)b64, 0);
-    return (jint)result;
+    free(bin);
   }
 
   JNIEXPORT jint JNICALL
